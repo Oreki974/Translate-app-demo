@@ -1,113 +1,182 @@
-import Image from "next/image";
+// pages/index.tsx
+"use client";
+import { useState } from 'react';
+import { translateText } from '../services/translationService'; 
+import Image from 'next/image';
+import { url } from 'inspector';
 
-export default function Home() {
+const Home = () => {
+  const [text, setText] = useState('');
+  const [translatedText, setTranslatedText] = useState('');
+  const [sourceLang, setSourceLang] = useState('en');
+  const [targetLang, setTargetLang] = useState('fr');
+  const [charCount, setCharCount] = useState(0); // 新增字符计数状态
+
+  const handleTranslate = async () => {
+    const result = await translateText(text, sourceLang, targetLang);
+    setTranslatedText(result);
+  };
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const inputText = e.target.value;
+    if (inputText.length <= 500) { // 限制输入字符最大值为500
+      setText(inputText);
+      setCharCount(inputText.length); // 更新字符计数
+    }
+  };
+
+  const handleSpeech = () => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = sourceLang;
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Text copied to clipboard');
+    }, (err) => {
+      console.error('Could not copy text: ', err);
+    });
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+    <div className='flex flex-col justify-center'>
+      <div>
+        <Image 
+          src={'/images/logo.svg'}
+          alt="Logo"
+          width={150}
+          height={150}
+          className='mx-auto my-10'
         />
       </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+      <div className='flex flex-col gap-4 md:flex-row'>
+        <div className="bg-gray-800 bg-opacity-90 p-8 rounded-xl shadow-lg max-w-lg w-full mx-auto md:ml-auto md:mr-1">
+            <div className="flex justify-start space-x-4 mb-2">
+              <p className='m-auto text-[#4D5562]'>Detect Language</p>
+              <button onClick={() => setSourceLang('en')} className={`px-4 py-2 rounded-xl ${sourceLang === 'en' ? 'bg-[#4D5562] text-white' : ' text-[#4D5562]'}`}>English</button>
+              <button onClick={() => setSourceLang('fr')} className={`px-4 py-2 rounded-xl ${sourceLang === 'fr' ? 'bg-[#4D5562] text-white' : 'text-[#4D5562]'}`}>French</button>
+              <select 
+                title='language'
+                onChange={(e) => setSourceLang(e.target.value)} 
+                // className=" rounded-xl text-[#4D5562] bg-gray-800 bg-opacity-0"
+                //改变被选中时的背景颜色与文字颜色
+                className={`rounded-xl ${sourceLang !== 'en' && sourceLang !== 'fr'? 'bg-[#4D5562] text-white' : 'bg-gray-800 bg-opacity-0 text-[#4D5562]'}`}
+                value={sourceLang}
+              >
+                <option value="es">Spanish</option>
+                <option value="de">German</option>
+                <option value="it">Italian</option>
+                <option value="pt">Portuguese</option>
+                <option value="zh">Chinese</option>
+                <option value="ja">Japanese</option>
+                <option value="ko">Korean</option>
+                <option value="ru">Russian</option>
+                {/* 可以根据需求添加更多语言 */}
+              </select>
+            </div>
+            <hr />
+            <textarea
+              value={text}
+              // onChange={(e) => setText(e.target.value)}
+              onChange={handleTextChange}
+              placeholder="Enter text to translate"
+              className="w-full py-4 rounded-lg bg-gray-800 bg-opacity-0 text-white resize-none"
+              rows={5}
+              maxLength={500} // 限制最大字符数量
+            />
+            <div className="text-right text-gray-400">{charCount}/500</div>
+          <div className="text-end mb-4 flex justify-between">
+            <div className='flex'>
+              <button onClick={handleSpeech} className="px-2 rounded-lg flex items-center" title='speech'>
+                <div className='border-2 border-[#4D5562] rounded-lg p-1'>
+                  <Image
+                    src={'/images/sound_max_fill.svg'}
+                    alt="Sound"
+                    width={24}
+                    height={24}
+                  />
+                </div>
+              </button>
+              <button onClick={handleCopy} className="px-2 rounded-lg flex items-center" title='copy'>
+                <div className='border-2 border-[#4D5562] rounded-lg p-1'>
+                  <Image
+                    src={'/images/Copy.svg'}
+                    alt="Copy"
+                    width={24}
+                    height={24}
+                  />
+                </div>
+              </button>
+            </div>
+            <button onClick={handleTranslate} className="bg-blue-600 text-white px-6 py-2 rounded-lg flex">
+            <Image
+              src={'/images/Sort_alfa.svg'}
+              alt="Sort Alphabetically"
+              width={24}
+              height={24}
+            />
+              Translate</button>
+          </div>
+        </div>
+        <div className="bg-gray-800 bg-opacity-90 p-8 rounded-lg shadow-lg max-w-lg w-full mx-auto md:mr-auto md:ml-1">
+          <div className="flex justify-start space-x-4 mb-2">
+            <button onClick={() => setTargetLang('en')} className={`px-4 py-2 rounded-xl ${targetLang === 'en' ? 'bg-[#4D5562] text-white' : 'text-[#4D5562]'}`}>English</button>
+            <button onClick={() => setTargetLang('fr')} className={`px-4 py-2 rounded-xl ${targetLang === 'fr' ? 'bg-[#4D5562] text-white' : 'text-[#4D5562]'}`}>French</button>
+            <select 
+              title='language'
+              onChange={(e) => setTargetLang(e.target.value)} 
+              // className="rounded-xl bg-gray-800 bg-opacity-0 text-[#4D5562]"
+              //改变被选中时的背景颜色与文字颜色
+              className={`rounded-xl ${targetLang !== 'en' && targetLang !== 'fr'? 'bg-[#4D5562] text-white' : 'bg-gray-800 bg-opacity-0 text-[#4D5562]'}`}
+              value={targetLang}
+            >
+              <option value="es">Spanish</option>
+              <option value="de">German</option>
+              <option value="it">Italian</option>
+              <option value="pt">Portuguese</option>
+              <option value="zh">Chinese</option>
+              <option value="ja">Japanese</option>
+              <option value="ko">Korean</option>
+              <option value="ru">Russian</option>
+              {/* 可以根据需求添加更多语言 */}
+            </select>
+          </div>
+          <hr />
+          <textarea
+            value={translatedText}
+            placeholder="Translation"
+            className="w-full py-4 rounded-lg bg-gray-800 bg-opacity-0 text-white resize-none"
+            rows={5}
+          />
+          <div className='h-[24px]'></div>
+          <div className='flex'>
+              <button onClick={handleSpeech} className="px-2 rounded-lg flex items-center" title='speech'>
+                <div className='border-2 border-[#4D5562] rounded-lg p-1'>
+                  <Image
+                    src={'/images/sound_max_fill.svg'}
+                    alt="Sound"
+                    width={24}
+                    height={24}
+                  />
+                </div>
+              </button>
+              <button onClick={handleCopy} className="px-2 rounded-lg flex items-center" title='copy'>
+                <div className='border-2 border-[#4D5562] rounded-lg p-1'>
+                  <Image
+                    src={'/images/Copy.svg'}
+                    alt="Copy"
+                    width={24}
+                    height={24}
+                  />
+                </div>
+              </button>
+            </div>
+        </div>
       </div>
-    </main>
+    </div>
+    
   );
-}
+};
+
+export default Home;
